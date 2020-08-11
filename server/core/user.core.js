@@ -1,5 +1,9 @@
 const Usuario = require('../domain/user.domain');
-const { EncryptAdapter, MapperMessage, Tokenizer } = require('../adapter/index.adapter');
+const {
+  EncryptAdapter,
+  MapperMessage,
+  Tokenizer,
+} = require('../adapter/index.adapter');
 const {
   Error,
   BadRequest,
@@ -11,26 +15,25 @@ const {
 const jwt = require('jsonwebtoken');
 
 async function LoginUser({ email, password }) {
-  Usuario.findOne({ email }, async (err, user) => {
-    const EncryptInstace = new EncryptAdapter(user.password);
-    if (err) return MapperMessage(Error, { ...err });
-    if (!EncryptInstace.CompareEncryptedPassword(password)) {
-      const errorPassword = {
-        err:{
-          message: 'Incorrect password'
-        }
-      }
-      return MapperMessage(BadRequest, errorPassword);
-    }
-    const response = {
-      user,
-      token: Tokenizer({ user }, { expiresIn: 60 * 60 * 24 })
-    }
+  const user = await Usuario.findOne({ email });
+  const EncryptInstace = new EncryptAdapter(user.password);
+  if (!EncryptInstace.CompareEncryptedPassword(password)) {
+    const errorPassword = {
+      err: {
+        message: 'Incorrect password',
+      },
+    };
+    return MapperMessage(BadRequest, errorPassword);
+  }
+  
+  const response = {
+    user,
+    token: Tokenizer({ user }, { expiresIn: 60 * 60 * 24 }),
+  };
 
-    return MapperMessage(Success, response);
-  });
+  return MapperMessage(Success, response);
 }
 
 module.exports = {
-  LoginUser
-}
+  LoginUser,
+};

@@ -9,5 +9,5 @@ let categorySchema = new mongoose.Schema({
   },
 });
 
-userSchema.plugin(mongooseUnique, { message: '{PATH} must be unique' });
+categorySchema.plugin(mongooseUnique, { message: '{PATH} must be unique' });
 module.exports = mongoose.model('Category', categorySchema);
