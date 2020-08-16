@@ -5,12 +5,20 @@ const {
   UpdateCategory,
 } = require('./category.core');
 
-const { LoginUser } = require('./user.core');
+const { 
+  LoginUser ,
+  GetUsers,
+  CreateUser,
+  UpdateDeleteUser
+} = require('./user.core');
 
 module.exports = {
   CreateCategory,
   DeleteCategory,
   GetCategories,
   UpdateCategory,
-  LoginUser
+  LoginUser,
+  GetUsers,
+  CreateUser,
+  UpdateDeleteUser
 };

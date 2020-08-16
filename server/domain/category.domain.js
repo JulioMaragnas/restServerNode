@@ -9,5 +9,12 @@ let categorySchema = new mongoose.Schema({
   },
 });
 
+categorySchema.methods.toJSON = function () {
+  let schema = this.toObject();
+  const {_id} = schema;
+  delete schema._id;
+  return {...schema, id: _id};
+}
+
 categorySchema.plugin(mongooseUnique, { message: '{PATH} must be unique' });
 module.exports = mongoose.model('Category', categorySchema);

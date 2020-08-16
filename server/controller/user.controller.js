@@ -2,85 +2,42 @@ const express = require('express');
 const app = express();
 const { verifytoken } = require('../middleware/verifyToken.middleware');
 const { verifyRole } = require('../middleware/verifyRole.middleware');
-const Usuario = require('../domain/user.domain');
+const { GetUsers, CreateUser, UpdateUser, UpdateDeleteUser } = require('../core/index.core');
 const hashJS = require('hash.js');
 const _ = require('underscore');
 
 
-app.get('/usuario/:from*?/:to*?', verifytoken, (req, res) => {
+app.get('/usuario/:from*?/:to*?', verifytoken, async (req, res) => {
   let { from, to } = req.params;
   console.log(req.params)
-  Usuario.find({state: true}, )
-  .skip(Number(from))
-  .limit(Number(to | 10))
-  .exec((err,usuarios)=> err ? 
-    res.status(400).json({
-      ok: false,
-      err
-    }) 
-    : res.json({
-      ok: true,
-      count: usuarios.length,
-      usuarios
-    })
-  )
+  const responseUser =  await GetUsers(from, to);
+  const { status } = responseUser;
+  res.status(status).json(responseUser);
 });
 
 app.post('/usuario', [verifytoken, verifyRole], (req, res) => {
-  const { body: { name, email, password, role } } = req;
+  const { body: { name }, body : user } = req;
+  
   if (!name)
     res.status(400).json('{message: "el nombre es requerido"}');
-  let user = new Usuario({
-    name,
-    email,
-    password: hashJS.sha256().update(password).digest('hex'),
-    role
-  });
-  user.save((err, userDB) => {
-    if (err) {
-      return res.status(500).json({
-        status: 500,
-        err
-      })
-    }
-    res.json({
-      status: 200,
-      payload: userDB
-    })
-  });
+
+  const responseUser = await CreateUser(user);
+  const { status } = responseUser;
+  res.status(status).json(responseUser);
 });
 
-app.put('/usuario/:id', [verifytoken, verifyRole], (req, res) => {
-  let { body: payload, params: { id } } = req;
-  payload = _.pick(payload, ['name', 'email', 'img', 'role', 'state']);
-  Usuario.findByIdAndUpdate(id, payload, { new: true }, (err, user) => {
-    if (err) {
-      return res.status(400).json({
-        ok: false,
-        err
-      })
-    }
-    res.json({
-      ok: true,
-      user
-    })
-  })
+app.put('/usuario/:id', [verifytoken, verifyRole], async (req, res) => {
+  let { body: user, params: { id } } = req;
+  const responseUser = await UpdateUser(id, user);
+  const { status } = responseUser;
+  res.status(status).json(responseUser);
 });
 
 app.delete('/usuario/:id', [verifytoken, verifyRole], (req, res) => {
   let { id } = req.params;
-  Usuario.findByIdAndUpdate(id, { state: false }, { new: true }, (err, user) => {
-    if (err) {
-      return res.status(400).json({
-        ok: false,
-        err
-      })
-    }
-    res.json({
-      ok: true,
-      user
-    })
-  })
+  const responseUser = await UpdateDeleteUser(id, { state: false });
+  const { status } = responseUser;
+  res.status(status).json(responseUser);
 });
 
 module.exports = app
