@@ -4,19 +4,26 @@ const {
   BadRequest,
   NoContent,
   Success,
-  Error : ErrorMessage,
+  Error: ErrorMessage,
 } = require('../infraestructure/messageType.infraestructure');
+const Repository = require('../dataAccess/repository.dataAccess');
 
 async function GetCategories(id) {
+  console.log('id', id)
   try {
     if (id) {
-      const categoryDB = await Category.findById(id);
+      console.log('si mandamos parametro');
+      const categoryDB = await Repository.FindById(Category, id);
+      console.log('categoryDB', categoryDB)
+
       return GetSingleOrAllCategories(categoryDB, id);
     } else {
-      const categoryDB = await Category.find();
+      const categoryDB = await Repository.Find(Category);
+
       return GetSingleOrAllCategories(categoryDB);
     }
   } catch (error) {
+    console.log('por aca se explota el hpta');
     return MapperMessage(ErrorMessage, { ...error });
   }
 }
@@ -26,10 +33,10 @@ function GetSingleOrAllCategories(categoryDB, id) {
     const responseCategoryById = {
       message: 'there´s no cateogory with this Id',
     };
-    return MapperMessage(NoContent, responseCategoryById);
+    return MapperMessage(Success, responseCategoryById);
   }
 
-  if (!categoryDB.length) {
+  if (Array.isArray(categoryDB) && !categoryDB.length) {
     const responseAllCategories = {
       message: 'there are no categories',
     };
@@ -59,13 +66,10 @@ async function CreateCategory(category) {
 async function UpdateCategory(id, category) {
   console.log('antes de entrar al try ');
   try {
-    const categoryUpdated = await Category.findByIdAndUpdate(
-      id, 
-      category, 
-      { 
-        new: true,
-        runValidators: true
-      });
+    const categoryUpdated = await Category.findByIdAndUpdate(id, category, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!categoryUpdated) {
       const responseNoContent = {
@@ -80,14 +84,14 @@ async function UpdateCategory(id, category) {
     };
     return MapperMessage(Success, responseUpdated);
   } catch (error) {
-    console.log('pasa por acá')
-    return MapperMessage(ErrorMessage, {...error})
+    console.log('pasa por acá');
+    return MapperMessage(ErrorMessage, { ...error });
   }
 }
 
-async function DeleteCategory(id ) {
+async function DeleteCategory(id) {
   try {
-    const deletedCategory = (await Category.findByIdAndDelete(id));
+    const deletedCategory = await Category.findByIdAndDelete(id);
 
     if (!deletedCategory) {
       const responseNoContent = {
@@ -95,14 +99,14 @@ async function DeleteCategory(id ) {
       };
       return MapperMessage(NoContent, responseNoContent);
     }
-  
+
     const responseDeleted = {
       message: 'Category has been deleted successfully',
       payload: { ...deletedCategory.toJSON() },
     };
     return MapperMessage(Success, responseDeleted);
   } catch (error) {
-    return MapperMessage(ErrorMessage, {...error})
+    return MapperMessage(ErrorMessage, { ...error });
   }
 }
 

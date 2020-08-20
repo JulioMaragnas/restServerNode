@@ -15,7 +15,7 @@ app.get('/usuario/:from*?/:to*?', verifytoken, async (req, res) => {
   res.status(status).json(responseUser);
 });
 
-app.post('/usuario', [verifytoken, verifyRole], (req, res) => {
+app.post('/usuario', [verifytoken, verifyRole], async (req, res) => {
   const { body: { name }, body : user } = req;
   
   if (!name)
@@ -33,7 +33,7 @@ app.put('/usuario/:id', [verifytoken, verifyRole], async (req, res) => {
   res.status(status).json(responseUser);
 });
 
-app.delete('/usuario/:id', [verifytoken, verifyRole], (req, res) => {
+app.delete('/usuario/:id', [verifytoken, verifyRole], async (req, res) => {
   let { id } = req.params;
   const responseUser = await UpdateDeleteUser(id, { state: false });
   const { status } = responseUser;
