@@ -1,7 +1,7 @@
 # restServerNode
 Rest api with nodejs and applying clean code concepts
 
-#Implementing too
+# Implementing too
 *  Domain Driven desing and some concepts about hexagonal architecture
 *  Clean code concepts by Rober C. Martin thanks a lot
 *  Repository pattern, it is responsible to comunicate with datasource and get the data.
