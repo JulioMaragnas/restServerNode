@@ -2,15 +2,16 @@ async function Find(Context, filter = null, projection = null, options = null) {
   try {
     return await Context.find(filter, projection, options);
   } catch (error) {
-    throw new Error(JSON.stringify(error));
+    console.log(error)
   }
 }
 
 async function FindById(Context, id = null, projection = null, options = null) {
   try {
-    return await (await Context.findById(id, projection, options)).toJSON();
+    const entity = await Context.findById(id, projection, options)
+    return (entity && await entity.toJSON()) || entity;
   } catch (error) {
-    throw new Error(JSON.stringify(error));
+    console.log(error)
   }
 }
 
@@ -18,7 +19,7 @@ async function FindOne(Context, queryParameter, projection = null, options = nul
   try {
     return await Context.findOne(configureParameter(queryParameter), projection, options);
   } catch (error) {
-    throw new Error(JSON.stringify(error));
+    console.log(error)
   }
 }
 
@@ -34,4 +35,5 @@ function configureParameter(parameter) {
 module.exports = {
   Find,
   FindById,
+  FindOne
 };

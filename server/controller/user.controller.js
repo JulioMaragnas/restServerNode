@@ -7,10 +7,9 @@ const hashJS = require('hash.js');
 const _ = require('underscore');
 
 
-app.get('/usuario/:from*?/:to*?', verifytoken, async (req, res) => {
-  let { from, to } = req.params;
-  console.log(req.params)
-  const responseUser =  await GetUsers(from, to);
+app.get('/usuarios', verifytoken, async (req, res) => {
+  const { from, to } = req.query;
+  const responseUser =  await GetUsers(Number(from), Number(to));
   const { status } = responseUser;
   res.status(status).json(responseUser);
 });

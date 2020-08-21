@@ -10,36 +10,42 @@ const {
   Success,
   NoContent,
 } = require('../infraestructure/messageType.infraestructure');
+const Repository = require('../dataAccess/repository.dataAccess');
 
 // const hashJS = require('hash.js');
 
 const jwt = require('jsonwebtoken');
 
 async function LoginUser({ email, password }) {
-  const user = await Usuario.findOne({ email });
-  const EncryptInstace = new EncryptAdapter(user.password);
-  if (!EncryptInstace.CompareEncryptedPassword(password)) {
-    const errorPassword = {
-      err: {
-        message: 'Incorrect password',
-      },
+  try {
+    const user = await Repository.FindOne(Usuario, { email });
+    const EncryptInstace = new EncryptAdapter(user.password);
+
+    if (!EncryptInstace.CompareEncryptedPassword(password)) {
+      const errorPassword = {
+        err: {
+          message: 'Incorrect password',
+        },
+      };
+
+      return MapperMessage(BadRequest, errorPassword);
+    }
+    const response = {
+      user,
+      token: Tokenizer({ user }, { expiresIn: 60 * 60 * 24 }),
     };
-    return MapperMessage(BadRequest, errorPassword);
+
+    return MapperMessage(Success, response);
+  } catch (error) {
+    return MapperMessage(ErrorMessage, { ...error });
   }
-
-  const response = {
-    user,
-    token: Tokenizer({ user }, { expiresIn: 60 * 60 * 24 }),
-  };
-
-  return MapperMessage(Success, response);
 }
 
 async function GetUsers(from, to) {
   try {
-    const users = await Usuario.find({ state: true }, null, {
-      skip: from | 0,
-      limit: to | 0,
+    const users = await Repository.Find(Usuario, {state: true}, null, {
+      skip: from || 0,
+      limit: to || 0,
     });
 
     if (!users) {
@@ -49,7 +55,7 @@ async function GetUsers(from, to) {
       return MapperMessage(NoContent, responseUsers);
     }
 
-    return MapperMessage(Success, { users, count: users.length() });
+    return MapperMessage(Success, { users, count: users.length });
   } catch (error) {
     return MapperMessage(ErrorMessage, { ...error });
   }
@@ -78,14 +84,13 @@ async function UpdateDeleteUser(id, user) {
 
     return MapperMessage(Success, userUpdated);
   } catch (error) {
-    return MapperMessage(ErrorMessage, {...error})    
+    return MapperMessage(ErrorMessage, { ...error });
   }
 }
-
 
 module.exports = {
   LoginUser,
   GetUsers,
   CreateUser,
-  UpdateDeleteUser
+  UpdateDeleteUser,
 };

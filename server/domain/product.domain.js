@@ -10,4 +10,4 @@ var productoSchema = new Schema({
   usuario: { type: Schema.Types.ObjectId, ref: 'User' },
 });
 
-module.exports = mongoose.model('Producto', productoSchema);
+module.exports = mongoose.model('Product', productoSchema);

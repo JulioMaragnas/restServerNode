@@ -12,6 +12,11 @@ const {
   UpdateDeleteUser
 } = require('./user.core');
 
+const {
+  GetProducts
+} = require('./product.core')
+
+
 module.exports = {
   CreateCategory,
   DeleteCategory,
@@ -20,5 +25,6 @@ module.exports = {
   LoginUser,
   GetUsers,
   CreateUser,
-  UpdateDeleteUser
+  UpdateDeleteUser,
+  GetProducts
 };

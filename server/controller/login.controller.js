@@ -5,7 +5,6 @@ const { LoginUser } =require('../core/user.core')
 app.post('/login', async (req, res) => {
   let { body } = req;
   const response = await LoginUser(body);
-  console.log(response)
   const { status } = response;
   res.status(status).json(response);  
 });

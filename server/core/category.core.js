@@ -7,46 +7,22 @@ const {
   Error: ErrorMessage,
 } = require('../infraestructure/messageType.infraestructure');
 const Repository = require('../dataAccess/repository.dataAccess');
+const { GetSingleOrAllEntities } = require('./common.core');
 
 async function GetCategories(id) {
-  console.log('id', id)
   try {
     if (id) {
-      console.log('si mandamos parametro');
       const categoryDB = await Repository.FindById(Category, id);
-      console.log('categoryDB', categoryDB)
 
-      return GetSingleOrAllCategories(categoryDB, id);
+      return await GetSingleOrAllEntities(categoryDB, id);
     } else {
       const categoryDB = await Repository.Find(Category);
 
-      return GetSingleOrAllCategories(categoryDB);
+      return await GetSingleOrAllEntities(categoryDB);
     }
   } catch (error) {
-    console.log('por aca se explota el hpta');
     return MapperMessage(ErrorMessage, { ...error });
   }
-}
-
-function GetSingleOrAllCategories(categoryDB, id) {
-  if (id && !categoryDB) {
-    const responseCategoryById = {
-      message: 'there´s no cateogory with this Id',
-    };
-    return MapperMessage(Success, responseCategoryById);
-  }
-
-  if (Array.isArray(categoryDB) && !categoryDB.length) {
-    const responseAllCategories = {
-      message: 'there are no categories',
-    };
-    return MapperMessage(NoContent, responseAllCategories);
-  }
-
-  return MapperMessage(
-    Success,
-    Array.isArray(categoryDB) ? [...categoryDB] : { ...categoryDB }
-  );
 }
 
 async function CreateCategory(category) {
