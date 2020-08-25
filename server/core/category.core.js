@@ -7,6 +7,7 @@ const {
   Error: ErrorMessage,
 } = require('../infraestructure/messageType.infraestructure');
 const Repository = require('../dataAccess/repository.dataAccess');
+const UnitOfWork = require('../dataAccess/unitOfWork.dataAccess');
 const { GetSingleOrAllEntities } = require('./common.core');
 
 async function GetCategories(id) {
@@ -27,7 +28,7 @@ async function GetCategories(id) {
 
 async function CreateCategory(category) {
   try {
-    const categoryCreated = await (await Category.create(category)).toJSON();
+    const categoryCreated =  await UnitOfWork.Create(Category, category);
 
     const responseCreated = {
       message: 'Category has been created successfully',
@@ -35,16 +36,17 @@ async function CreateCategory(category) {
     };
     return MapperMessage(Success, responseCreated);
   } catch (error) {
+    
     return MapperMessage(ErrorMessage, { ...error });
   }
 }
 
 async function UpdateCategory(id, category) {
-  console.log('antes de entrar al try ');
   try {
-    const categoryUpdated = await Category.findByIdAndUpdate(id, category, {
+    const categoryUpdated = await UnitOfWork.FindByIdAndUpdate(Category ,id, category, {
       new: true,
       runValidators: true,
+      context: 'query'
     });
 
     if (!categoryUpdated) {
@@ -67,7 +69,11 @@ async function UpdateCategory(id, category) {
 
 async function DeleteCategory(id) {
   try {
-    const deletedCategory = await Category.findByIdAndDelete(id);
+    const deletedCategory = await UnitOfWork.FindByIdAndDelete(Category,id, {
+      new: true,
+      runValidators: true,
+      context: 'query'
+    });
 
     if (!deletedCategory) {
       const responseNoContent = {
