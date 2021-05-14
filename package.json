@@ -14,8 +14,8 @@
     "express": "^4.17.1",
     "hash.js": "^1.1.7",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.9.26",
+    "mongoose": "^5.12.9",
     "mongoose-unique-validator": "^2.0.3",
-    "underscore": "^1.10.2"
+    "underscore": "^1.13.1"
   }
 }
